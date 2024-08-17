@@ -30,7 +30,7 @@ namespace jwellone.UI
                     continue;
                 }
 
-                if (!Contents(_text.fontStyle, localPoint, meshInfo, characterInfo, out var normalized))
+                if (!Contains(_text.fontStyle, localPoint, meshInfo, characterInfo, out var normalized))
                 {
                     continue;
                 }
@@ -57,7 +57,7 @@ namespace jwellone.UI
             return float.MinValue;
         }
 
-        bool Contents(FontStyles style, in Vector2 localPoint, in TMP_MeshInfo meshInfo, in TMP_CharacterInfo characterInfo, out Vector2 normalized)
+        bool Contains(FontStyles style, in Vector2 localPoint, in TMP_MeshInfo meshInfo, in TMP_CharacterInfo characterInfo, out Vector2 normalized)
         {
             var vertices = meshInfo.vertices;
             var index = characterInfo.vertexIndex;

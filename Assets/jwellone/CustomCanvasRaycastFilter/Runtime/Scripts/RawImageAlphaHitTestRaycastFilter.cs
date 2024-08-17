@@ -26,8 +26,8 @@ namespace jwellone.UI
                 return float.MaxValue;
             }
 
-            var cood = localPoint / rectTransform.rect.size + rectTransform.pivot;
-            var alpha = _rawImage.color.a * texture.GetPixel((int)(cood.x * texture.width), (int)(cood.y * texture.height)).a;
+            var coord = localPoint / rectTransform.rect.size + rectTransform.pivot;
+            var alpha = _rawImage.color.a * texture.GetPixel((int)(coord.x * texture.width), (int)(coord.y * texture.height)).a;
             SetDebugRect(rectTransform.rect, alpha >= alphaHitTestMinimumThreshold ? Color.green : Color.white);
             return alpha;
         }
