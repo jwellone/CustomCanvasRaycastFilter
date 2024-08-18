@@ -85,6 +85,7 @@ namespace jwellone.UI
             if (_debugGraphic == null)
             {
                 _debugGraphic = new GameObject("DebugGraphic").AddComponent<DebugGraphic>();
+                _debugGraphic.gameObject.hideFlags = HideFlags.HideAndDontSave;
                 _debugGraphic.rectTransform.SetParent(rectTransform, false);
                 _debugGraphic.rectTransform.localPosition = Vector3.zero;
                 _debugGraphic.enabled = false;
