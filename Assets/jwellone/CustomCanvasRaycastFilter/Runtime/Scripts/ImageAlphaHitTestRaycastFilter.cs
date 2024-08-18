@@ -99,8 +99,16 @@ namespace jwellone.UI
                 var dir = (coord - Vector2.zero).normalized;
                 var angle = Vector2ToAngle(dir);
 
-                angle = (90 - angle) / 90;
-                if (0 > angle || angle > fillAmount)
+                angle /= 90f;
+                var min = 0f;
+                var max = fillAmount;
+                if (image.fillClockwise)
+                {
+                    min = 1f - fillAmount;
+                    max = 1f;
+                }
+
+                if (min > angle || angle > max)
                 {
                     return false;
                 }
@@ -109,8 +117,17 @@ namespace jwellone.UI
             {
                 var dir = (coord - new Vector2(1, 0)).normalized;
                 var angle = Vector2ToAngle(dir);
-                angle = 1f - (angle - 90) / 90;
-                if (0 > angle || angle > fillAmount)
+                angle = (180 - angle) / 90;
+
+                var min = 1f - fillAmount;
+                var max = 1f;
+                if (image.fillClockwise)
+                {
+                    min = 0;
+                    max = fillAmount;
+                }
+
+                if (min > angle || angle > max)
                 {
                     return false;
                 }
@@ -120,7 +137,16 @@ namespace jwellone.UI
                 var dir = (coord - new Vector2(0, 1)).normalized;
                 var angle = Vector2ToAngle(dir);
                 angle = angle / -90f;
-                if (0 > angle || angle > fillAmount)
+
+                var min = 1f - fillAmount;
+                var max = 1f;
+                if (image.fillClockwise)
+                {
+                    min = 0;
+                    max = fillAmount;
+                }
+
+                if (min > angle || angle > max)
                 {
                     return false;
                 }
@@ -129,8 +155,17 @@ namespace jwellone.UI
             {
                 var dir = (coord - new Vector2(1, 1)).normalized;
                 var angle = Vector2ToAngle(dir);
-                angle = (angle + 90) / -90f;
-                if (0 > angle || angle > fillAmount)
+                angle = (180 + angle) / 90f;
+
+                var min = 0f;
+                var max = fillAmount;
+                if (image.fillClockwise)
+                {
+                    min = 1f - fillAmount;
+                    max = 1f;
+                }
+
+                if (min > angle || angle > max)
                 {
                     return false;
                 }
@@ -138,7 +173,7 @@ namespace jwellone.UI
             return true;
         }
 
-        public static float Vector2ToAngle(Vector2 vector)
+        float Vector2ToAngle(in Vector2 vector)
         {
             return Mathf.Atan2(vector.y, vector.x) * Mathf.Rad2Deg;
         }
