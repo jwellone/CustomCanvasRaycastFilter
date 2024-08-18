@@ -243,7 +243,7 @@ namespace jwellone.UI
 
                 EditorGUILayout.Space();
 
-                var mainTexture = (target as MaskableGraphic)?.mainTexture;
+                var mainTexture = instance.gameObject.GetComponent<MaskableGraphic>()?.mainTexture;
                 var mainTextureAssetPath = AssetDatabase.GetAssetPath(mainTexture);
                 EditorGUILayout.ObjectField("mainTexture", mainTexture, typeof(Texture), false);
                 GUILayout.Label($"path : {mainTextureAssetPath}");
