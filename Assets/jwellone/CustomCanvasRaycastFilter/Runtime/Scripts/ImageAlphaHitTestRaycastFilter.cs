@@ -8,6 +8,11 @@ namespace jwellone.UI
     [RequireComponent(typeof(Image))]
     public class ImageAlphaHitTestRaycastFilter : AlphaHitTestRaycastFilter
     {
+        const float PI = Mathf.PI;
+        const float TWO_PI = PI * 2f;
+        const float HALF_PI = PI * 0.5f;
+
+
         Image? _image;
 
         protected override float GetAlphaOfRaycastLocation(Vector2 localPoint, Camera eventCamera)
@@ -44,20 +49,13 @@ namespace jwellone.UI
             {
                 case Image.Type.Filled:
                     {
-                        var fillMethod = _image.fillMethod;
-                        if (fillMethod == Image.FillMethod.Horizontal || fillMethod == Image.FillMethod.Vertical)
+                        switch (_image.fillMethod)
                         {
-                            if (!ValidToFillMethodHorizontalOrVertical(localPoint, _image))
-                            {
-                                return false;
-                            }
-                        }
-                        else if (fillMethod == Image.FillMethod.Radial90)
-                        {
-                            if (!ValidToFillMethodRadial90(localPoint, _image))
-                            {
-                                return false;
-                            }
+                            case Image.FillMethod.Vertical: return ValidToFillMethodHorizontalOrVertical(localPoint, _image);
+                            case Image.FillMethod.Horizontal: return ValidToFillMethodHorizontalOrVertical(localPoint, _image);
+                            case Image.FillMethod.Radial90: return ValidToFillMethodRadial90(localPoint, _image);
+                            case Image.FillMethod.Radial360: return ValidToFillMethodRadial360(localPoint, _image);
+                            default: break;
                         }
                     }
                     break;
@@ -171,6 +169,36 @@ namespace jwellone.UI
                 }
             }
             return true;
+        }
+
+        bool ValidToFillMethodRadial360(in Vector2 localPoint, Image image)
+        {
+            var sprite = image.sprite;
+            var coord = localPoint / (sprite.textureRect.size * rectTransform.rect.size / sprite.rect.size) + rectTransform.pivot;
+            var offsets = new[] { -HALF_PI, -PI, HALF_PI, 0f };
+            var amount = Mathf.Atan2(0.5f - coord.y, 0.5f - coord.x) + offsets[image.fillOrigin];
+
+            while (amount < 0)
+            {
+                amount += TWO_PI;
+            }
+
+            while (amount > TWO_PI)
+            {
+                amount -= TWO_PI;
+            }
+
+            amount /= TWO_PI;
+
+            var min = 0f;
+            var max = image.fillAmount;
+            if (image.fillClockwise)
+            {
+                min = 1f - max;
+                max = 1f;
+            }
+
+            return !(min > amount || amount > max);
         }
 
         float Vector2ToAngle(in Vector2 vector)
