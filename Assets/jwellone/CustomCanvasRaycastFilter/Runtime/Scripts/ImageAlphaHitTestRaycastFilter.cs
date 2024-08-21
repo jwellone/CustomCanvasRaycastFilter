@@ -90,85 +90,37 @@ namespace jwellone.UI
         {
             var sprite = image.sprite;
             var fillOrigin = image.fillOrigin;
-            var fillAmount = image.fillAmount;
             var coord = localPoint / (sprite.textureRect.size * rectTransform.rect.size / sprite.rect.size) + rectTransform.pivot;
+            var rad = 0f;
+
             if (fillOrigin == (int)Image.Origin90.BottomLeft)
             {
-                var dir = (coord - Vector2.zero).normalized;
-                var angle = Vector2ToAngle(dir);
-
-                angle /= 90f;
-                var min = 0f;
-                var max = fillAmount;
-                if (image.fillClockwise)
-                {
-                    min = 1f - fillAmount;
-                    max = 1f;
-                }
-
-                if (min > angle || angle > max)
-                {
-                    return false;
-                }
+                rad = Mathf.Atan2(coord.y, coord.x);
             }
             else if (fillOrigin == (int)Image.Origin90.BottomRight)
             {
-                var dir = (coord - new Vector2(1, 0)).normalized;
-                var angle = Vector2ToAngle(dir);
-                angle = (180 - angle) / 90;
-
-                var min = 1f - fillAmount;
-                var max = 1f;
-                if (image.fillClockwise)
-                {
-                    min = 0;
-                    max = fillAmount;
-                }
-
-                if (min > angle || angle > max)
-                {
-                    return false;
-                }
+                rad = Mathf.Atan2(1f - coord.x, coord.y);
             }
             else if (fillOrigin == (int)Image.Origin90.TopLeft)
             {
-                var dir = (coord - new Vector2(0, 1)).normalized;
-                var angle = Vector2ToAngle(dir);
-                angle = angle / -90f;
-
-                var min = 1f - fillAmount;
-                var max = 1f;
-                if (image.fillClockwise)
-                {
-                    min = 0;
-                    max = fillAmount;
-                }
-
-                if (min > angle || angle > max)
-                {
-                    return false;
-                }
+                rad = Mathf.Atan2(coord.x, 1f - coord.y);
             }
             else if (fillOrigin == (int)Image.Origin90.TopRight)
             {
-                var dir = (coord - new Vector2(1, 1)).normalized;
-                var angle = Vector2ToAngle(dir);
-                angle = (180 + angle) / 90f;
-
-                var min = 0f;
-                var max = fillAmount;
-                if (image.fillClockwise)
-                {
-                    min = 1f - fillAmount;
-                    max = 1f;
-                }
-
-                if (min > angle || angle > max)
-                {
-                    return false;
-                }
+                rad = Mathf.Atan2(1f - coord.y, 1f - coord.x);
             }
-            return true;
+
+            rad /= HALF_PI;
+
+            var min = 0f;
+            var max = image.fillAmount;
+            if (image.fillClockwise)
+            {
+                min = 1f - max;
+                max = 1f;
+            }
+
+            return !(min > rad || rad > max);
         }
 
         bool ValidToFillMethodRadial360(in Vector2 localPoint, Image image)
@@ -199,11 +151,6 @@ namespace jwellone.UI
             }
 
             return !(min > amount || amount > max);
-        }
-
-        float Vector2ToAngle(in Vector2 vector)
-        {
-            return Mathf.Atan2(vector.y, vector.x) * Mathf.Rad2Deg;
         }
 
 #if UNITY_EDITOR
