@@ -13,7 +13,6 @@ namespace jwellone.UI
     public abstract class AlphaHitTestRaycastFilter : MonoBehaviour, ICanvasRaycastFilter
     {
         [SerializeField, Range(0, 1)] float _alphaHitTestMinimumThreshold;
-        [SerializeField] float _rayPositionZ = -100f;
 
         RectTransform? _cacheRectTransform;
 
@@ -38,9 +37,8 @@ namespace jwellone.UI
                 return true;
             }
 
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, sp, eventCamera, out var localPoint, _rayPositionZ))
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, sp, eventCamera, out var localPoint))
             {
-                CheckRayPositionZandLogWarningIfNeeded();
                 return false;
             }
 
@@ -53,24 +51,6 @@ namespace jwellone.UI
         }
 
         protected abstract float GetAlphaOfRaycastLocation(Vector2 localPoint, Camera eventCamera);
-
-        [System.Diagnostics.Conditional("UNITY_EDITOR")]
-        void CheckRayPositionZandLogWarningIfNeeded()
-        {
-            var corners = new Vector3[4];
-            rectTransform.GetWorldCorners(corners);
-            var minZ = float.MaxValue;
-            for (var i = 0; i < corners.Length; ++i)
-            {
-                minZ = Mathf.Min(minZ, corners[i].z);
-            }
-
-            if (_rayPositionZ > minZ)
-            {
-                Debug.LogWarning($"Please adjust \"Ray Position Z({_rayPositionZ})\" > {minZ} of {name}.", gameObject);
-                SetDebugRect(rectTransform.rect, Color.yellow);
-            }
-        }
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
         protected void SetDebugRect(Rect rect, Color color)
@@ -256,12 +236,6 @@ namespace jwellone.UI
 
             protected virtual void OnInspectorGUIForHelpBox()
             {
-                var instance = (AlphaHitTestRaycastFilter)target;
-                if (instance._rayPositionZ > _minZ)
-                {
-                    EditorGUILayout.HelpBox($"Please adjust \"Ray Position Z({instance._rayPositionZ})\" > {_minZ}.", MessageType.Warning);
-                }
-
                 if (_showWarningTextureReadWrite)
                 {
                     EditorGUILayout.HelpBox("Set the texture to read/write.", MessageType.Warning);

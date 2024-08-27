@@ -6,44 +6,34 @@ namespace jwellone
 {
     public static class RectTransformUtility
     {
-        public static Ray ScreenPointToRay(Camera? cam, Vector2 screenPos, float rayPositionZ = -100f)
+        static Plane _plane = new Plane();
+        static Vector3 _worldPoint = Vector3.zero;
+
+        public static bool ScreenPointToLocalPointInRectangle(RectTransform rect, Vector2 screenPoint, Camera? cam, out Vector2 localPoint)
         {
-            if (cam != null)
+            var forward = rect.forward;
+            var position = rect.position;
+            if (cam == null)
             {
-                return cam.ScreenPointToRay(screenPos);
-            }
-
-            Vector3 origin = screenPos;
-            origin.z = rayPositionZ;
-            return new Ray(origin, Vector3.forward);
-        }
-
-        public static bool ScreenPointToWorldPointInRectangle(RectTransform rect, Vector2 screenPoint, Camera? cam, out Vector3 worldPoint, float rayPositionZ = -100f)
-        {
-            worldPoint = Vector2.zero;
-            Ray ray = ScreenPointToRay(cam, screenPoint, rayPositionZ);
-            Plane plane = new Plane(rect.rotation * Vector3.back, rect.position);
-            float enter = 0f;
-            float num = Vector3.Dot(Vector3.Normalize(rect.position - ray.origin), plane.normal);
-            if (num != 0f && !plane.Raycast(ray, out enter))
-            {
-                return false;
-            }
-
-            worldPoint = ray.GetPoint(enter);
-            return true;
-        }
-
-        public static bool ScreenPointToLocalPointInRectangle(RectTransform rect, Vector2 screenPoint, Camera? cam, out Vector2 localPoint, float rayPositionZ = -100f)
-        {
-            localPoint = Vector2.zero;
-            if (ScreenPointToWorldPointInRectangle(rect, screenPoint, cam, out var worldPoint, rayPositionZ))
-            {
-                localPoint = rect.InverseTransformPoint(worldPoint);
+                _worldPoint.x = screenPoint.x;
+                _worldPoint.y = screenPoint.y;
+                _worldPoint.z = position.z + (-forward.x * (screenPoint.x - position.x) - forward.y * (screenPoint.y - position.y)) / forward.z;
+                localPoint = rect.InverseTransformPoint(_worldPoint);
                 return true;
             }
 
-            return false;
+            var ray = cam.ScreenPointToRay(screenPoint, Camera.MonoOrStereoscopicEye.Mono);
+            _plane.SetNormalAndPosition(forward, position);
+            var num = Vector3.Dot(Vector3.Normalize(position - ray.origin), _plane.normal);
+            var enter = 0f;
+            if (num != 0f && !_plane.Raycast(ray, out enter))
+            {
+                localPoint = Vector2.zero;
+                return false;
+            }
+
+            localPoint = rect.InverseTransformPoint(ray.GetPoint(enter));
+            return true;
         }
     }
 }
