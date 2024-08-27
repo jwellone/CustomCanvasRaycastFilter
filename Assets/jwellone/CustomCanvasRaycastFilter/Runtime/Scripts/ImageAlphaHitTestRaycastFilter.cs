@@ -158,44 +158,38 @@ namespace jwellone.UI
 
             if (fillOrigin == (int)Image.Origin180.Bottom)
             {
-                var x = -Mathf.Cos(fillAmount) * texHalfSize.x;
-                var y = -texHalfSize.y + Mathf.Sin(fillAmount) * texSize.y;
                 rad = Mathf.Atan2(localPoint.y + texHalfSize.y, -localPoint.x);
-                fillAmount = Mathf.Atan2(y + texHalfSize.y, -x);
+                fillAmount = Mathf.Atan2(Mathf.Sin(fillAmount) * texSize.y, Mathf.Cos(fillAmount) * texHalfSize.x);
             }
             else if (fillOrigin == (int)Image.Origin180.Top)
             {
-                var x = Mathf.Cos(fillAmount) * texHalfSize.x;
-                var y = texHalfSize.y - Mathf.Sin(fillAmount) * texSize.y;
                 rad = -Mathf.Atan2(localPoint.y - texHalfSize.y, localPoint.x);
-                fillAmount = -Mathf.Atan2(y - texHalfSize.y, x);
+                fillAmount = Mathf.Atan2(Mathf.Sin(fillAmount) * texSize.y, Mathf.Cos(fillAmount) * texHalfSize.x);
             }
             else if (fillOrigin == (int)Image.Origin180.Left)
             {
-                var x = -texHalfSize.x + Mathf.Sin(fillAmount) * texSize.x;
-                var y = Mathf.Cos(fillAmount) * texHalfSize.y;
                 rad = Mathf.Atan2(localPoint.x + texHalfSize.x, localPoint.y);
-                fillAmount = Mathf.Atan2(x + texHalfSize.x, y);
+                fillAmount = Mathf.Atan2(Mathf.Sin(fillAmount) * texSize.x, Mathf.Cos(fillAmount) * texHalfSize.y);
             }
             else if (fillOrigin == (int)Image.Origin180.Right)
             {
-                var x = texHalfSize.x - Mathf.Sin(fillAmount) * texSize.x;
-                var y = -Mathf.Cos(fillAmount) * texHalfSize.y;
-                rad = Mathf.Atan2(texHalfSize.x - localPoint.x, -localPoint.y);
-                fillAmount = Mathf.Atan2(texHalfSize.x - x, -y);
+                rad = -Mathf.Atan2(localPoint.x - texHalfSize.x, -localPoint.y);
+                fillAmount = Mathf.Atan2(Mathf.Sin(fillAmount) * texSize.x, Mathf.Cos(fillAmount) * texHalfSize.y);
             }
+
+            rad /= Mathf.PI;
+            fillAmount /= Mathf.PI;
 
             var min = 0f;
             var max = fillAmount;
             if (!image!.fillClockwise)
             {
-                min = Mathf.PI - max;
-                max = Mathf.PI;
+                min = 1f - max;
+                max = 1f;
             }
 
             return !(min > rad || rad > max);
         }
-
 
         static bool ValidToFillMethodRadial360(in Vector2 localPoint, in Image image)
         {
