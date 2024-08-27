@@ -63,7 +63,7 @@ namespace jwellone.UI
 
         static float GetAlphaForTypeFilled(in Vector2 localPoint, in Texture2D texture, in Image image)
         {
-            if (0 >= image!.fillAmount || image!.fillAmount >= 1f)
+            if (0 >= image.fillAmount || image.fillAmount >= 1f)
             {
                 return GetAlphaForTypeSimple(localPoint, texture, image);
             }
@@ -72,9 +72,9 @@ namespace jwellone.UI
             var sprite = image.sprite;
             var fillOrigin = image.fillOrigin;
             var texSize = sprite.textureRect.size * rectTransform.rect.size / sprite.rect.size;
-            var fillAmount = image!.fillAmount;
+            var fillAmount = image.fillAmount;
             var rad = float.MinValue;
-            var fillClockwise = image!.fillClockwise;
+            var fillClockwise = image.fillClockwise;
             switch (image.fillMethod)
             {
                 case Image.FillMethod.Vertical:
@@ -146,7 +146,7 @@ namespace jwellone.UI
                     {
                         var coord = localPoint / texSize + rectTransform.pivot;
                         var offsets = new[] { -HALF_PI, -PI, HALF_PI, 0f };
-                        rad = Mathf.Atan2(0.5f - coord.y, 0.5f - coord.x) + offsets[image.fillOrigin];
+                        rad = Mathf.Atan2(0.5f - coord.y, 0.5f - coord.x) + offsets[fillOrigin];
 
                         while (rad < 0)
                         {
