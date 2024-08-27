@@ -19,12 +19,14 @@ namespace jwellone.UI
                 return float.MaxValue;
             }
 
+#if UNITY_EDITOR
             if (!texture.isReadable)
             {
                 Debug.LogWarning($"Not a Read/Write setting for {texture.name}. Confirm setting.");
                 SetDebugRect(rectTransform.rect, Color.red);
                 return float.MaxValue;
             }
+#endif
 
             var coord = localPoint / rectTransform.rect.size + rectTransform.pivot;
             var alpha = _rawImage.color.a * texture.GetPixel((int)(coord.x * texture.width), (int)(coord.y * texture.height)).a;

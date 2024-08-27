@@ -24,11 +24,20 @@ namespace jwellone.UI
                 var characterInfo = info.characterInfo[i];
                 var meshInfo = info.meshInfo[characterInfo.materialReferenceIndex];
                 var texture = meshInfo.material.mainTexture as Texture2D;
-                if (texture == null || !texture.isReadable)
+                if (texture == null)
                 {
                     SetDebugRect(rectTransform.rect, Color.red);
                     continue;
                 }
+
+#if UNITY_EDITOR
+                if (!texture.isReadable)
+                {
+                    Debug.LogWarning($"Not a Read/Write setting for {texture.name}. Confirm setting.");
+                    SetDebugRect(rectTransform.rect, Color.red);
+                    return float.MaxValue;
+                }
+#endif
 
                 if (!Contains(_text.fontStyle, localPoint, meshInfo, characterInfo, out var normalized))
                 {

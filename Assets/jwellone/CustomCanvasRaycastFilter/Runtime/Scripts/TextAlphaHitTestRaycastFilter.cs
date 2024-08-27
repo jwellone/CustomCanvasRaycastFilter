@@ -14,11 +14,20 @@ namespace jwellone.UI
         {
             _text ??= GetComponent<Text>();
             var texture = _text.mainTexture as Texture2D;
-            if (texture == null || !texture.isReadable)
+            if (texture == null)
             {
                 SetDebugRect(rectTransform.rect, Color.red);
                 return float.MinValue;
             }
+
+#if UNITY_EDITOR
+            if (!texture.isReadable)
+            {
+                Debug.LogWarning($"Not a Read/Write setting for {texture.name}. Confirm setting.");
+                SetDebugRect(rectTransform.rect, Color.red);
+                return float.MaxValue;
+            }
+#endif
 
             var verts = _text.cachedTextGenerator.verts;
             var rect = Rect.zero;

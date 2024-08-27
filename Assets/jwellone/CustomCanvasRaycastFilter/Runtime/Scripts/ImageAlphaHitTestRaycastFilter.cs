@@ -23,12 +23,14 @@ namespace jwellone.UI
                 return float.MaxValue;
             }
 
+#if UNITY_EDITOR
             if (!texture.isReadable)
             {
                 SetDebugRect(rectTransform.rect, Color.red);
                 Debug.LogWarning($"Not a Read/Write setting for {texture.name}. Confirm setting.");
                 return float.MaxValue;
             }
+#endif
 
             if (!ValidType(localPoint))
             {
