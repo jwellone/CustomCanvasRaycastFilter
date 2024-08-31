@@ -55,6 +55,7 @@ namespace jwellone.UI
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
         protected void SetDebugRect(Rect rect, Color color)
         {
+            rect.position += rectTransform.rect.size * (rectTransform.pivot - new Vector2(0.5f, 0.5f));
             var leftBottom = new Vector3(rect.x, rect.y);
             var leftTop = new Vector3(rect.x, rect.y + rect.height);
             var rightTop = new Vector3(rect.x + rect.width, rect.y + rect.height);

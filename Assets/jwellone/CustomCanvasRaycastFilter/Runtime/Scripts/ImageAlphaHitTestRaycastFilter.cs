@@ -8,9 +8,24 @@ namespace jwellone.UI
     [RequireComponent(typeof(Image))]
     public class ImageAlphaHitTestRaycastFilter : AlphaHitTestRaycastFilter
     {
+        enum Slice
+        {
+            Center,
+            Top,
+            Bottom,
+            LeftTop,
+            LeftCenter,
+            LeftBottom,
+            RightTop,
+            RightCenter,
+            RightBottom,
+        }
+
         const float PI = Mathf.PI;
         const float TWO_PI = PI * 2f;
         const float HALF_PI = PI * 0.5f;
+        readonly static int _sliceLength = System.Enum.GetNames(typeof(Slice)).Length;
+
         delegate float GetAlphaFunc(in Vector2 localPoint, in Texture2D texture, in Image image);
         readonly static GetAlphaFunc[] _getAlphaFuncs = new GetAlphaFunc[]
         {
@@ -51,9 +66,64 @@ namespace jwellone.UI
             return texture.GetPixel((int)(coord.x * texture.width), (int)(coord.y * texture.height)).a;
         }
 
+        static Rect SliceToRect(Slice slice, in Vector4 border, float width, float height)
+        {
+            switch (slice)
+            {
+                case Slice.Center: return new Rect(border.x, border.y, width - (border.x + border.z), height - (border.y + border.w));
+                case Slice.Top: return new Rect(border.x, height - border.w, width - (border.x + border.z), border.w);
+                case Slice.Bottom: return new Rect(border.x, 0, width - (border.x + border.z), border.y);
+                case Slice.LeftTop: return new Rect(0, height - border.w, border.x, border.w);
+                case Slice.LeftCenter: return new Rect(0, border.y, border.x, height - (border.y + border.w));
+                case Slice.LeftBottom: return new Rect(0, 0, border.x, border.y);
+                case Slice.RightTop: return new Rect(width - border.z, height - border.w, border.z, border.w);
+                case Slice.RightCenter: return new Rect(width - border.z, border.y, border.z, height - (border.y + border.w));
+                case Slice.RightBottom: return new Rect(width - border.z, 0, border.z, border.y);
+            }
+
+            return Rect.zero;
+        }
+
         static float GetAlphaForTypeSliced(in Vector2 localPoint, in Texture2D texture, in Image image)
         {
-            return GetAlphaForTypeSimple(localPoint, texture, image);
+            var sprite = image.sprite;
+            var texRect = sprite.textureRect;
+            var border = sprite.border;
+            var scaleBorder = border / image.pixelsPerUnitMultiplier;
+            var rectTransform = image.rectTransform;
+            var rect = rectTransform.rect;
+            var offsetPos = rect.size * rectTransform.pivot;
+
+            var r = SliceToRect(Slice.Center, scaleBorder, rect.width, rect.height);
+            r.position -= offsetPos;
+            if (r.Contains(localPoint))
+            {
+                if (!image.fillCenter)
+                {
+                    return float.MinValue;
+                }
+
+                var normal = Rect.PointToNormalized(r, localPoint);
+                r = SliceToRect(Slice.Center, border, texRect.width, texRect.height);
+                return sprite.texture.GetPixel((int)(r.x + r.width * normal.x), (int)(r.y + r.height * normal.y)).a;
+            }
+
+            for (var i = 1; i < _sliceLength; ++i)
+            {
+                var slice = (Slice)i;
+                r = SliceToRect(slice, scaleBorder, rect.size.x, rect.size.y);
+                r.position -= offsetPos;
+                if (!r.Contains(localPoint))
+                {
+                    continue;
+                }
+
+                var normal = Rect.PointToNormalized(r, localPoint);
+                r = SliceToRect(slice, border, texRect.width, texRect.height);
+                return sprite.texture.GetPixel((int)(r.x + r.width * normal.x), (int)(r.y + r.height * normal.y)).a;
+            }
+
+            return float.MinValue;
         }
 
         static float GetAlphaForTypeTiled(in Vector2 localPoint, in Texture2D texture, in Image image)
