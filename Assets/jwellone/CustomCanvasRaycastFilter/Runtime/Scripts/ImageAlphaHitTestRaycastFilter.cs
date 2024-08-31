@@ -69,7 +69,7 @@ namespace jwellone.UI
         static float GetAlphaForTypeSliced(in Vector2 localPoint, in Texture2D texture, in Image image)
         {
             var sprite = image.sprite;
-            var texRect = sprite.textureRect;
+            var texRect = sprite.rect;
             var border = sprite.border;
             var scaleBorder = border / image.pixelsPerUnitMultiplier;
             var rectTransform = image.rectTransform;
