@@ -74,34 +74,34 @@ namespace jwellone.UI
             var scaleBorder = border / image.pixelsPerUnitMultiplier;
             var rectTransform = image.rectTransform;
             var rect = rectTransform.rect;
-            var offsetPos = rect.size * rectTransform.pivot;
-            var r = Rect.zero;
+            var coord = localPoint + rect.size * rectTransform.pivot;
 
-            _sliceToRectFuncs[0](scaleBorder, rect.width, rect.height, ref r);
-            r.position -= offsetPos;
-            if (r.Contains(localPoint))
+            var r = Rect.zero;
+            var func = _sliceToRectFuncs[0];
+            func(scaleBorder, rect.width, rect.height, ref r);
+            if (r.Contains(coord))
             {
                 if (!image.fillCenter)
                 {
                     return float.MinValue;
                 }
 
-                var normal = Rect.PointToNormalized(r, localPoint);
-                _sliceToRectFuncs[0](border, texRect.width, texRect.height, ref r);
+                var normal = Rect.PointToNormalized(r, coord);
+                func(border, texRect.width, texRect.height, ref r);
                 return sprite.texture.GetPixel((int)(r.x + r.width * normal.x), (int)(r.y + r.height * normal.y)).a;
             }
 
             for (var i = 1; i < _sliceToRectFuncs.Length; ++i)
             {
-                _sliceToRectFuncs[i](scaleBorder, rect.size.x, rect.size.y, ref r);
-                r.position -= offsetPos;
-                if (!r.Contains(localPoint))
+                func = _sliceToRectFuncs[i];
+                func(scaleBorder, rect.size.x, rect.size.y, ref r);
+                if (!r.Contains(coord))
                 {
                     continue;
                 }
 
-                var normal = Rect.PointToNormalized(r, localPoint);
-                _sliceToRectFuncs[i](border, texRect.width, texRect.height, ref r);
+                var normal = Rect.PointToNormalized(r, coord);
+                func(border, texRect.width, texRect.height, ref r);
                 return sprite.texture.GetPixel((int)(r.x + r.width * normal.x), (int)(r.y + r.height * normal.y)).a;
             }
 
