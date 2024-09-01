@@ -112,7 +112,42 @@ namespace jwellone.UI
 
         static float GetAlphaForTypeTiled(in Vector2 localPoint, in Texture2D texture, in Image image)
         {
-            return GetAlphaForTypeSimple(localPoint, texture, image);
+            var sprite = image.sprite;
+            var pixelsPerUnitMultiplier = image.pixelsPerUnitMultiplier;
+            var border = sprite.border;
+            var scaleBorder = border / pixelsPerUnitMultiplier;
+            var rectTransform = image.rectTransform;
+            var size = rectTransform.rect.size;
+            var coord = localPoint + size * rectTransform.pivot;
+
+            _sliceToRectFuncs[0](scaleBorder, size.x, size.y, ref _rect);
+            if (!image.fillCenter && _rect.Contains(coord))
+            {
+                return float.MinValue;
+            }
+
+            float Calc(float coord, float size, float texSize, float border1, float border2, float scaleBorder1, float scaleBorder2)
+            {
+                if (coord < scaleBorder1)
+                {
+                    coord = coord * border1 / scaleBorder1;
+                }
+                else if (coord >= scaleBorder1 && coord <= size - scaleBorder2)
+                {
+                    coord = border1 + (coord - scaleBorder1) * pixelsPerUnitMultiplier % (texSize - (border1 + border2));
+                }
+                else if (coord > size - scaleBorder2)
+                {
+                    coord = texSize - border2 + (coord - (size - scaleBorder2)) * border2 / scaleBorder2;
+                }
+
+                return coord;
+            }
+
+            var texRect = sprite.rect;
+            coord.x = Calc(coord.x, size.x, texRect.width, border.x, border.z, scaleBorder.x, scaleBorder.z);
+            coord.y = Calc(coord.y, size.y, texRect.height, border.y, border.w, scaleBorder.y, scaleBorder.w);
+            return sprite.texture.GetPixel((int)coord.x, (int)coord.y).a;
         }
 
         static float GetAlphaForTypeFilled(in Vector2 localPoint, in Texture2D texture, in Image image)
