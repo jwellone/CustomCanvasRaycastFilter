@@ -35,6 +35,8 @@ namespace jwellone.UI
             (in Vector4 border, float width, float height, ref Rect rect) => {rect.Set(width - border.z, 0, border.z, border.y);}
         };
 
+        static Rect _rect = Rect.zero;
+
         Image? _image;
 
         protected override float GetAlphaOfRaycastLocation(Vector2 localPoint, Camera eventCamera)
@@ -73,36 +75,36 @@ namespace jwellone.UI
             var border = sprite.border;
             var scaleBorder = border / image.pixelsPerUnitMultiplier;
             var rectTransform = image.rectTransform;
-            var rect = rectTransform.rect;
-            var coord = localPoint + rect.size * rectTransform.pivot;
+            var size = rectTransform.rect.size;
+            var coord = localPoint + size * rectTransform.pivot;
 
-            var r = Rect.zero;
             var func = _sliceToRectFuncs[0];
-            func(scaleBorder, rect.width, rect.height, ref r);
-            if (r.Contains(coord))
+            func(scaleBorder, size.x, size.y, ref _rect);
+
+            if (_rect.Contains(coord))
             {
                 if (!image.fillCenter)
                 {
                     return float.MinValue;
                 }
 
-                var normal = Rect.PointToNormalized(r, coord);
-                func(border, texRect.width, texRect.height, ref r);
-                return sprite.texture.GetPixel((int)(r.x + r.width * normal.x), (int)(r.y + r.height * normal.y)).a;
+                var normal = Rect.PointToNormalized(_rect, coord);
+                func(border, texRect.width, texRect.height, ref _rect);
+                return sprite.texture.GetPixel((int)(_rect.x + _rect.width * normal.x), (int)(_rect.y + _rect.height * normal.y)).a;
             }
 
             for (var i = 1; i < _sliceToRectFuncs.Length; ++i)
             {
                 func = _sliceToRectFuncs[i];
-                func(scaleBorder, rect.size.x, rect.size.y, ref r);
-                if (!r.Contains(coord))
+                func(scaleBorder, size.x, size.y, ref _rect);
+                if (!_rect.Contains(coord))
                 {
                     continue;
                 }
 
-                var normal = Rect.PointToNormalized(r, coord);
-                func(border, texRect.width, texRect.height, ref r);
-                return sprite.texture.GetPixel((int)(r.x + r.width * normal.x), (int)(r.y + r.height * normal.y)).a;
+                var normal = Rect.PointToNormalized(_rect, coord);
+                func(border, texRect.width, texRect.height, ref _rect);
+                return sprite.texture.GetPixel((int)(_rect.x + _rect.width * normal.x), (int)(_rect.y + _rect.height * normal.y)).a;
             }
 
             return float.MinValue;
