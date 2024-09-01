@@ -13,12 +13,7 @@ Support for Raw Image, Image, Text and TextMesh components.
 
 This feature is one of the "j1Tech" developed by jwellone Inc for Unity.
 
-
-
-
-https://github.com/user-attachments/assets/565e2523-ceb9-4a73-8036-c03178625811
-
-
+https://github.com/user-attachments/assets/8e9bc9bb-5e01-4c54-be3f-f4c44f6bde04
 
 ## Getting Started
 - import this package.
