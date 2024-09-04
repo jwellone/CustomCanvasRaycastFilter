@@ -15,13 +15,11 @@ namespace jwellone.UI
     [RequireComponent(typeof(MaskableGraphic))]
     public sealed class AlphaMaskHitTestRaycastFilter : AlphaHitTestRaycastFilter
     {
-#if UNITY_EDITOR
         [SerializeField, HideInInspector] string _sourceTextureGuid = string.Empty;
-#endif
+        [SerializeField, HideInInspector] Vector2Int _sourceTextureSize;
         [SerializeField, HideInInspector] byte[] _compressCacheData = null!;
 
         byte[]? _cacheData;
-        MaskableGraphic? _graphic;
 
         byte[] _compressData
         {
@@ -80,15 +78,13 @@ namespace jwellone.UI
 
         protected override float GetAlphaOfRaycastLocation(Vector2 localPoint, Camera eventCamera)
         {
-            _graphic ??= GetComponent<MaskableGraphic>();
-            var texture = _graphic?.mainTexture;
-            if (_data == null || _data.Length == 0 || texture == null)
+            if (_data == null || _data.Length == 0)
             {
                 return float.MaxValue;
             }
 
             var cood = localPoint / rectTransform.rect.size + rectTransform.pivot;
-            var index = (int)(cood.x * (texture.width - 1)) + (int)(cood.y * (texture.height - 1)) * texture.width;
+            var index = (int)(cood.x * (_sourceTextureSize.x - 1)) + (int)(cood.y * (_sourceTextureSize.y - 1)) * _sourceTextureSize.x;
             if (_data.Length > index)
             {
                 var alpha = _data[index] / 255f;
@@ -102,11 +98,11 @@ namespace jwellone.UI
 
 #if UNITY_EDITOR
         [CustomEditor(typeof(AlphaMaskHitTestRaycastFilter))]
-        sealed class CustomInspector : BaseInspector
+        class CustomInspector : BaseInspector
         {
             readonly byte[] _emptyData = Array.Empty<byte>();
             string _guid = string.Empty;
-            MaskableGraphic? _maskableGraphic;
+            Graphic? _graphic;
             Texture2D? _alphaMapTexture;
             protected override bool _showWarningTextureReadWrite => false;
 
@@ -120,42 +116,53 @@ namespace jwellone.UI
                 base.OnInspectorGUI();
 
                 var instance = (AlphaMaskHitTestRaycastFilter)target;
-                _maskableGraphic ??= instance.gameObject.GetComponent<MaskableGraphic>();
-                var texture = _maskableGraphic?.mainTexture as Texture2D ?? null;
-                var path = AssetDatabase.GetAssetPath(texture);
-                var guid = string.IsNullOrEmpty(path) ? string.Empty : AssetDatabase.AssetPathToGUID(path);
+                _graphic ??= instance.gameObject.GetComponent<Graphic>();
+                var texture = _graphic?.mainTexture as Texture2D ?? null;
 
-                if (instance._sourceTextureGuid != guid)
+                if (!EditorApplication.isPlaying)
                 {
-                    instance._sourceTextureGuid = guid;
-                    instance._compressData = CreateData(path);
-                    instance._cacheData = null;
-                }
+                    var path = AssetDatabase.GetAssetPath(texture);
+                    var guid = string.IsNullOrEmpty(path) ? string.Empty : AssetDatabase.AssetPathToGUID(path);
 
-                CreateAlphaMapTextureIfNeeded(texture, instance._sourceTextureGuid, instance._data);
+                    if (instance._sourceTextureGuid != guid)
+                    {
+                        instance._sourceTextureGuid = guid;
+                        var data = CreateData(path);
+                        instance._compressData = data.Item1;
+                        instance._sourceTextureSize = data.Item2;
+                        instance._cacheData = null;
+                    }
+                    CreateAlphaMapTextureIfNeeded(texture, instance._sourceTextureGuid, instance._data);
+                }
+                else
+                {
+                    CreateAlphaMapTexture(instance._data, instance._sourceTextureSize);
+                }
             }
 
             protected override void OnInspectorGUIForEditorOnlyProperties()
             {
                 base.OnInspectorGUIForEditorOnlyProperties();
 
+                var size = new Vector2Int(_alphaMapTexture?.width ?? 0, _alphaMapTexture?.height ?? 0);
                 EditorGUILayout.Space();
                 EditorGUI.BeginDisabledGroup(true);
-                EditorGUILayout.ObjectField("Alpha Map", _alphaMapTexture, typeof(Texture2D), false);
+                EditorGUILayout.ObjectField($"Alpha Map", _alphaMapTexture, typeof(Texture2D), false);
+                EditorGUILayout.Vector2IntField("Alpha Map Size", size);
                 EditorGUI.EndDisabledGroup();
             }
 
-            public byte[] CreateData(string assetPath)
+            public (byte[], Vector2Int) CreateData(string assetPath)
             {
                 if (string.IsNullOrEmpty(assetPath) || assetPath.EndsWith("unity_builtin_extra"))
                 {
-                    return _emptyData;
+                    return (_emptyData, Vector2Int.zero);
                 }
 
                 var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
                 if (importer == null)
                 {
-                    return _emptyData;
+                    return (_emptyData, Vector2Int.zero);
                 }
 
                 var isReadable = importer.isReadable;
@@ -177,12 +184,12 @@ namespace jwellone.UI
                     }
 
                     Debug.Log($"Create AlphaMap from {assetPath}");
-                    return data;
+                    return (data, new Vector2Int(texture.width, texture.height));
                 }
                 catch (Exception ex)
                 {
                     Debug.LogException(ex);
-                    return Array.Empty<byte>();
+                    return (Array.Empty<byte>(), Vector2Int.zero);
                 }
                 finally
                 {
@@ -214,6 +221,28 @@ namespace jwellone.UI
                 var colors = new Color32[data.Length];
                 var color = Color.clear;
                 for (var i = 0; i < data.Length; ++i)
+                {
+                    color.a = data[i];
+                    colors[i] = color;
+                }
+
+                texture.SetPixels32(colors);
+                texture.Apply();
+
+                _alphaMapTexture = texture;
+            }
+
+            void CreateAlphaMapTexture(byte[] data, Vector2Int size)
+            {
+                if (data.Length == 0 || _alphaMapTexture != null || size == Vector2.zero)
+                {
+                    return;
+                }
+
+                var texture = new Texture2D(size.x, size.y, TextureFormat.Alpha8, false);
+                var colors = new Color32[size.x * size.y];
+                var color = Color.clear;
+                for (var i = 0; i < colors.Length; ++i)
                 {
                     color.a = data[i];
                     colors[i] = color;
