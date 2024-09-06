@@ -1,0 +1,19 @@
+{
+    "name": "com.jwellone.customcanvasraycastfilter",
+    "displayName": "CustomCanvasRaycastFilter",
+    "author": { "name": "jwellone, Inc.", "url": "https://jwellone.co.jp/" },
+    "version": "1.0.1",               
+    "unity": "2021.3",
+    "description": "Provides unique filter function using ICanvasRaycastFilter.",
+    "license": "MIT",
+    "category": "2D",
+    "dependencies": { "com.unity.textmeshpro": "3.0.9" },
+    "keywords": [ "ui" ],
+    "samples": [
+        {
+          "displayName": "Samples",
+          "description": "CustomCanvasRaycastFilter Sample",
+          "path": "Samples"
+        }
+    ]
+}
