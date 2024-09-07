@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace jwellone.Samples
 {
-    public class SampleScene : MonoBehaviour
+    public class DemoScene : MonoBehaviour
     {
         [SerializeField] Image[] _fillAmountImages = null!;
 

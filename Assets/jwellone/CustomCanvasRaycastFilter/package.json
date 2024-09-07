@@ -1,8 +1,8 @@
 {
     "name": "com.jwellone.customcanvasraycastfilter",
     "displayName": "CustomCanvasRaycastFilter",
-    "author": { "name": "jwellone, Inc.", "url": "https://jwellone.co.jp/" },
-    "version": "1.0.3",               
+    "author": { "name": "jwellone, Inc.", "email": "support@jwellone.co.jp", "url": "https://jwellone.co.jp/" },
+    "version": "1.0.4",               
     "unity": "2021.3",
     "description": "Provides unique filter function using ICanvasRaycastFilter.",
     "license": "MIT",
@@ -13,7 +13,7 @@
         {
           "displayName": "Samples",
           "description": "CustomCanvasRaycastFilter Sample",
-          "path": "Samples~/CustomCanvasRaycastFilter"
+          "path": "Samples~/Demo"
         }
     ]
 }
