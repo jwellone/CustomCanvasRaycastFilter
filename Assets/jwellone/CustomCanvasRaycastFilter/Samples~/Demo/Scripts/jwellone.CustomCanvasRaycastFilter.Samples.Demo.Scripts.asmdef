@@ -1,5 +1,5 @@
 {
-    "name": "jwellone.CustomCanvasRaycastFilter.Samples.Scripts",
+    "name": "jwellone.CustomCanvasRaycastFilter.Samples.Demo.Scripts",
     "rootNamespace": "",
     "references": [
         "GUID:4680983dbfe494443b6584ab06557cf0",
