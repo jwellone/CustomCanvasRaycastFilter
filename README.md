@@ -15,8 +15,19 @@ This feature is one of the "j1Tech" developed by jwellone Inc for Unity.
 
 https://github.com/user-attachments/assets/8e9bc9bb-5e01-4c54-be3f-f4c44f6bde04
 
+## Installation
+
+- Install via UPM
+  - Click Window > Package Manager in the unity menu to open Package Manager UI.
+  - Click + > Add package from git URL... and input the repository URL: `https://github.com/jwellone/CustomCanvasRaycastFilter.git?path=Assets/jwellone/CustomCanvasRaycastFilter`
+  
+  If you want to set a target version, uses the `v*.*.*` release tag so you can specify a version like `#v1.0.3`.
+  For example `https://github.com/jwellone/CustomCanvasRaycastFilter.git?path=Assets/jwellone/CustomCanvasRaycastFilter#v1.0.3`.
+
+- Install as import package
+  - Download a unitypackage file from [Releases](https://GitHub.com/jwellone/CustomCanvasRaycastFilter/releases) and import package it.
+
 ## Getting Started
-- import this package.
 - In the corresponding UGUI component, attach the corresponding script to the object you want to detect touches, excluding the alpha region.
 
 ## Authors
