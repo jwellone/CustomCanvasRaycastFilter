@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/jwellone/CustomCanvasRaycastFilter/Samples/Scenes/SampleScene.unity
+    path: Assets/jwellone/CustomCanvasRaycastFilter/Samples/CustomCanvasRaycastFilter/Scenes/SampleScene.unity
     guid: d6bc8996ff3e94e65abfcb219c60f046
   m_configObjects: {}
