@@ -13,7 +13,7 @@
         {
           "displayName": "Samples",
           "description": "CustomCanvasRaycastFilter Sample",
-          "path": "Samples"
+          "path": "Samples~/CustomCanvasRaycastFilter"
         }
     ]
 }
